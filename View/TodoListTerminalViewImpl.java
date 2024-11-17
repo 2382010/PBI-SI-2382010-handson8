@@ -1,34 +1,22 @@
 package View;
 
-import Repositories.TodoListRepository;
-import Services.TodoListServicesImpl;
 import Entities.TodoList;
-import Services.TodoListServices;
 import java.util.Scanner;
+import Services.TodoListServices;
+import View.TodoListView;
 
-public class TodoListTerminalView implements TodoListView{
+public class TodoListTerminalViewImpl implements TodoListView {
     public static Scanner scanner = new Scanner(System.in);
-    private final TodoListServices todoListServices;
+    private final TodoListServices todoListService;
 
-    public TodoListTerminalView(final  TodoListServices todoListServices){
-        this.todoListServices = todoListServices;
+    public TodoListTerminalViewImpl(TodoListServices todoListService) {
+        this.todoListService = todoListService;
     }
 
-    public static String input(String info) {
+    public String input(String info) {
         System.out.print(info + " : ");
         var data = scanner.nextLine();
         return data;
-    }
-
-    public void showTodoList() {
-        System.out.println("TODO LIST");
-        TodoList[] todos = todoListServices.getTodoList();
-        for (var i = 0; i < todos.length; i++) {
-            var todo = todos[i];
-            if (todo != null) {
-                System.out.println((i + 1) + ". " + todo.getTodo());
-            }
-        }
     }
 
     public void showMainMenu() {
@@ -62,25 +50,27 @@ public class TodoListTerminalView implements TodoListView{
             }
         }
     }
-    public void showMenuAddTodoList() {
-        System.out.println("MENAMBAH TODO LIST");
-        var todo = input("Todo (x jika batal)");
-        if (todo.equals("x")) {
-            // batal
-        } else {
-            todoListServices.addTodoList(todo);
-        }
-    }
+
     public void showMenuRemoveTodoList() {
         System.out.println("MENGHAPUS TODO LIST");
         var number = input("Nomor yang dihapus (x jika batal)");
         if (number.equals("x")) {
             //batal
         } else {
-            boolean success = todoListServices.removeTodoList(Integer.valueOf(number));
+            boolean success = todoListService.removeTodoList(Integer.valueOf(number));
             if (!success) {
                 System.out.println("Gagal menghapus todo list : " + number);
             }
+        }
+    }
+
+    public void showMenuAddTodoList() {
+        System.out.println("MENAMBAH TODO LIST");
+        var todo = input("Todo (x jika batal)");
+        if (todo.equals("x")) {
+            // batal
+        } else {
+            todoListService.addTodoList(todo);
         }
     }
 
@@ -94,7 +84,7 @@ public class TodoListTerminalView implements TodoListView{
         if (newTodo.equals("x")) {
             return;
         }
-        boolean isEditTodoSuccess = todoListServices.editTodoList(Integer.valueOf(selectedTodo), newTodo);
+        boolean isEditTodoSuccess = todoListService.editTodoList(Integer.valueOf(selectedTodo), newTodo);
         if (isEditTodoSuccess) {
             System.out.println("Berhasil mengedit todo");
         } else {
@@ -102,8 +92,19 @@ public class TodoListTerminalView implements TodoListView{
         }
     }
 
+    public void showTodoList() {
+        System.out.println("TODO LIST");
+        TodoList[] todoList = todoListService.getTodoList();
+        for (var i = 0; i < todoList.length; i++) {
+            var todo = todoList[i];
+            if (todo != null) {
+                System.out.println((i + 1) + ". " + todo.getTodo());
+            }
+        }
+    }
+
     @Override
     public void run() {
-    showMainMenu();
+        showMainMenu();
     }
 }
